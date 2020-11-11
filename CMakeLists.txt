@@ -91,8 +91,8 @@ endif(STATIC_LIBS)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
-   SET(CMAKE_CXX_COMPILER "g++")
-   SET(CMAKE_MACOSX_RPATH 1)
+   # SET(CMAKE_CXX_COMPILER "/usr/bin/g++")
+   # SET(CMAKE_MACOSX_RPATH 1)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 
@@ -110,6 +110,10 @@ endif(WIN32)
 
 # Universal settings
 #enable_testing()
+
+
+# Add Submodules
+add_subdirectory(thirdparty/VelodyneHDL)
 
 # Subdirectories
 add_subdirectory(cmake)

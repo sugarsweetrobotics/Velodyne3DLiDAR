@@ -35,6 +35,9 @@ include_directories(${PROJECT_BINARY_DIR}/idl)
 include_directories(${OPENRTM_INCLUDE_DIRS})
 add_definitions(${OPENRTM_CFLAGS})
 
+
+include_directories(${PROJECT_SOURCE_DIR}/thirdparty/VelodyneHDL)
+
 MAP_ADD_STR(comp_hdrs "../" comp_headers)
 
 link_directories(${OPENRTM_LIBRARY_DIRS})
