@@ -112,18 +112,32 @@ RTC::ReturnCode_t Velodyne3D::onShutdown(RTC::UniqueId ec_id)
 
 RTC::ReturnCode_t Velodyne3D::onActivated(RTC::UniqueId ec_id)
 {
+  driver_.InitPacketDriver(DATA_PORT);
+  decoder_.SetCorrectionsFile("32db.xml");
+  data_ = new std::string();
+  dataLength_ = new unsigned int();
   return RTC::RTC_OK;
 }
 
 
 RTC::ReturnCode_t Velodyne3D::onDeactivated(RTC::UniqueId ec_id)
 {
+  delete data_;
+  delete dataLength_;
   return RTC::RTC_OK;
 }
 
 
 RTC::ReturnCode_t Velodyne3D::onExecute(RTC::UniqueId ec_id)
 {
+  PacketDecoder::HDLFrame latest_frame;
+  
+  driver_.GetPacket(data_, dataLength_);
+  decoder_.DecodePacket(data_, dataLength_);
+  std::deque<PacketDecoder::HDLFrame> frames = decoder_.GetFrames();
+  if (decoder_.GetLatestFrame(&latest_frame)) {
+    std::cout << "Number of points: " << latest_frame.x.size() << std::endl;
+  }
   return RTC::RTC_OK;
 }
 
