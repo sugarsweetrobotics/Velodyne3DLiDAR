@@ -35,8 +35,11 @@ include_directories(${PROJECT_BINARY_DIR}/idl)
 include_directories(${OPENRTM_INCLUDE_DIRS})
 add_definitions(${OPENRTM_CFLAGS})
 
-
+find_package(Boost REQUIRED COMPONENTS system thread)
+include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR}/thirdparty/VelodyneHDL)
+set(VELODYNE_LIBRARIES PacketDriver PacketDecoder)
+link_directories(${Boost_LIBRARY_DIRS})
 
 MAP_ADD_STR(comp_hdrs "../" comp_headers)
 
@@ -50,12 +53,12 @@ if(NOT TARGET ALL_IDL_TGT)
  add_custom_target(ALL_IDL_TGT)
 endif(NOT TARGET ALL_IDL_TGT)
 add_dependencies(${PROJECT_NAME} ALL_IDL_TGT)
-target_link_libraries(${PROJECT_NAME} ${OPENRTM_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${OPENRTM_LIBRARIES} ${VELODYNE_LIBRARIES})
 
 add_executable(${PROJECT_NAME}Comp ${standalone_srcs}
   ${comp_srcs} ${comp_headers} ${ALL_IDL_SRCS})
 add_dependencies(${PROJECT_NAME}Comp ALL_IDL_TGT)
-target_link_libraries(${PROJECT_NAME}Comp ${OPENRTM_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}Comp ${OPENRTM_LIBRARIES} ${VELODYNE_LIBRARIES})
 
 install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}Comp
     EXPORT ${PROJECT_NAME}
