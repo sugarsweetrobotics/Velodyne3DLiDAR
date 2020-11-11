@@ -1,0 +1,3 @@
+[submodule "thirdparty/VelodyneHDL"]
+	path = thirdparty/VelodyneHDL
+	url = https://github.com/sugarsweetrobotics/VelodyneHDL
