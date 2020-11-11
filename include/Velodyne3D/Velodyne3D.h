@@ -31,6 +31,11 @@
 #include <rtm/DataInPort.h>
 #include <rtm/DataOutPort.h>
 
+
+#include "PacketDriver.h"
+#include "PacketDecoder.h"
+#include <boost/shared_ptr.hpp>
+
 /*!
  * @class Velodyne3D
  * @brief Velodyne3D Ranger
@@ -268,6 +273,12 @@ class Velodyne3D
   
   // </rtc-template>
 
+
+  PacketDriver driver_;
+  PacketDecoder decoder_;
+  std::string *data_;
+  unsigned int* dataLength_;
+  
 };
 
 
