@@ -1,0 +1,70 @@
+
+
+#ifndef LiDAR3DDataTypes_idl
+#define LiDAR3DDataTypes_idl
+
+#include "InterfaceDataTypes.idl"
+
+module LiDAR3D {
+
+    
+    struct Range3DFrame {
+        sequence<double> ranges;
+        sequence<double> intensities;
+        double azimuthAngle;
+    };
+
+    typedef sequence<Range3DFrame> Range3DFrameList;
+
+
+
+    /*!
+     * @struct Ranger3DConfig
+     * @brief The configuration of a ranger device.
+     */
+    struct Ranger3DConfig
+    {
+        /// Minimum scannable angle in radians.
+        double minAltitudeAngle;
+        /// Maximum scannable angle in radians.
+        double maxAltitudeAngle;
+        /// Angular resolution in radians.
+        double altitudeAngularRes;
+
+        /// Minimum scannable angle in radians.
+        double minAzimuthAngle;
+        /// Maximum scannable angle in radians.
+        double maxAzimuthAngle;
+        /// Minimum scannable range in metres.
+        /// Angular resolution in radians.
+        double azimuthAngularRes;
+
+        double minRange;
+        /// Maximum scannable range in metres.
+        double maxRange;
+        /// Range resolution in metres.
+        double rangeRes;
+        /// Scanning frequency in Hertz.
+        double frequency;
+    };
+
+
+    /*!
+     * @struct RangeData3D
+     * @brief Range readings from a range sensor.
+     */
+    struct RangeData3D
+    {
+        /// Time stamp.
+        RTC::Time tm;
+        /// Range values in metres.
+        Range3DFrameList frames;
+        /// Geometry of the ranger at the time the scan data was measured.
+        RTC::RangerGeometry geometry;
+        /// Configuration of the ranger at the time the scan data was measured.
+        Ranger3DConfig config;
+    };
+
+};
+
+#endif

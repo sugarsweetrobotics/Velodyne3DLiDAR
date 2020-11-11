@@ -1,0 +1,54 @@
+# Velodyne3D CMake config file
+#
+# This file sets the following variables:
+# Velodyne3D_FOUND - Always TRUE.
+# Velodyne3D_INCLUDE_DIRS - Directories containing the Velodyne3D include files.
+# Velodyne3D_IDL_DIRS - Directories containing the Velodyne3D IDL files.
+# Velodyne3D_LIBRARIES - Libraries needed to use Velodyne3D.
+# Velodyne3D_DEFINITIONS - Compiler flags for Velodyne3D.
+# Velodyne3D_VERSION - The version of Velodyne3D found.
+# Velodyne3D_VERSION_MAJOR - The major version of Velodyne3D found.
+# Velodyne3D_VERSION_MINOR - The minor version of Velodyne3D found.
+# Velodyne3D_VERSION_REVISION - The revision version of Velodyne3D found.
+# Velodyne3D_VERSION_CANDIDATE - The candidate version of Velodyne3D found.
+
+message(STATUS "Found Velodyne3D-@PROJECT_VERSION@")
+set(Velodyne3D_FOUND TRUE)
+
+find_package(<dependency> REQUIRED)
+
+#set(Velodyne3D_INCLUDE_DIRS
+#    "@CMAKE_INSTALL_PREFIX@/include/@PROJECT_NAME_LOWER@-@PROJECT_VERSION_MAJOR@"
+#    ${<dependency>_INCLUDE_DIRS}
+#    )
+#
+#set(Velodyne3D_IDL_DIRS
+#    "@CMAKE_INSTALL_PREFIX@/include/@PROJECT_NAME_LOWER@-@PROJECT_VERSION_MAJOR@/idl")
+set(Velodyne3D_INCLUDE_DIRS
+    "@CMAKE_INSTALL_PREFIX@/include/@CPACK_PACKAGE_FILE_NAME@"
+    ${<dependency>_INCLUDE_DIRS}
+    )
+set(Velodyne3D_IDL_DIRS
+    "@CMAKE_INSTALL_PREFIX@/include/@CPACK_PACKAGE_FILE_NAME@/idl")
+
+
+if(WIN32)
+    set(Velodyne3D_LIBRARIES
+        "@CMAKE_INSTALL_PREFIX@/@LIB_INSTALL_DIR@/@CMAKE_SHARED_LIBRARY_PREFIX@@PROJECT_NAME_LOWER@@CMAKE_STATIC_LIBRARY_SUFFIX@"
+        ${<dependency>_LIBRARIES}
+        )
+else(WIN32)
+    set(Velodyne3D_LIBRARIES
+        "@CMAKE_INSTALL_PREFIX@/@LIB_INSTALL_DIR@/@CMAKE_SHARED_LIBRARY_PREFIX@@PROJECT_NAME_LOWER@@CMAKE_SHARED_LIBRARY_SUFFIX@"
+        ${<dependency>_LIBRARIES}
+        )
+endif(WIN32)
+
+set(Velodyne3D_DEFINITIONS ${<dependency>_DEFINITIONS})
+
+set(Velodyne3D_VERSION @PROJECT_VERSION@)
+set(Velodyne3D_VERSION_MAJOR @PROJECT_VERSION_MAJOR@)
+set(Velodyne3D_VERSION_MINOR @PROJECT_VERSION_MINOR@)
+set(Velodyne3D_VERSION_REVISION @PROJECT_VERSION_REVISION@)
+set(Velodyne3D_VERSION_CANDIDATE @PROJECT_VERSION_CANDIDATE@)
+
