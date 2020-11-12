@@ -7,12 +7,12 @@
  * $Id$
  */
 
-#include <rtm/Manager.h>
 #include <iostream>
 #include <string>
 #include <stdlib.h>
 #include "Velodyne3D.h"
 
+#include <rtm/Manager.h>
 
 void MyModuleInit(RTC::Manager* manager)
 {

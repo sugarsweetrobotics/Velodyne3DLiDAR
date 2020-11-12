@@ -10,6 +10,12 @@
 #ifndef VELODYNE3D_H
 #define VELODYNE3D_H
 
+
+#include "PacketDriver.h"
+#include "PacketDecoder.h"
+#include <boost/shared_ptr.hpp>
+
+
 #include <rtm/idl/BasicDataTypeSkel.h>
 #include <rtm/idl/ExtendedDataTypesSkel.h>
 #include <rtm/idl/InterfaceDataTypesSkel.h>
@@ -32,9 +38,6 @@
 #include <rtm/DataOutPort.h>
 
 
-#include "PacketDriver.h"
-#include "PacketDecoder.h"
-#include <boost/shared_ptr.hpp>
 
 /*!
  * @class Velodyne3D

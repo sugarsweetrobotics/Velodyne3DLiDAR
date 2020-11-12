@@ -35,6 +35,11 @@ include_directories(${PROJECT_BINARY_DIR}/idl)
 include_directories(${OPENRTM_INCLUDE_DIRS})
 add_definitions(${OPENRTM_CFLAGS})
 
+
+set(WINPCAPS_ROOT "C:/Program Files/WpdPack")
+include_directories(${WINPCAPS_ROOT}/include)
+link_directories(${WINPCAPS_ROOT}/lib/x64)
+
 find_package(Boost REQUIRED COMPONENTS system thread)
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR}/thirdparty/VelodyneHDL)
