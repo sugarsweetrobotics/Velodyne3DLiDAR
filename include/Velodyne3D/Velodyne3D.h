@@ -281,7 +281,8 @@ class Velodyne3D
   PacketDecoder decoder_;
   std::string *data_;
   unsigned int* dataLength_;
-  
+  unsigned int packet_count_per_frame_;
+  unsigned int last_azimuth_;
 };
 
 
