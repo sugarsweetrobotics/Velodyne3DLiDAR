@@ -176,8 +176,8 @@ RTC::ReturnCode_t Velodyne3D::onActivated(RTC::UniqueId ec_id)
   m_range3d.config.maxAltitudeAngle = HDL_Grabber_toRadians( 15.0);
   m_range3d.config.altitudeAngularRes = HDL_Grabber_toRadians( 2.0);
   
-  m_range3d.config.minAzimuthAngle = 0;
-  m_range3d.config.maxAzimuthAngle = HDL_Grabber_toRadians(359.0);
+  m_range3d.config.minAzimuthAngle = HDL_Grabber_toRadians(-180);
+  m_range3d.config.maxAzimuthAngle = HDL_Grabber_toRadians(359.0-180);
   m_range3d.config.azimuthAngularRes = HDL_Grabber_toRadians(1 / 100.0);
 
   m_range3d.config.minRange = 0.3;
