@@ -1,6 +1,3 @@
 [submodule "thirdparty/VelodyneHDL"]
 	path = thirdparty/VelodyneHDL
 	url = https://github.com/sugarsweetrobotics/VelodyneHDL
-[submodule "thirdparty/winpcap"]
-	path = thirdparty/winpcap
-	url = https://github.com/patmarion/winpcap.git
