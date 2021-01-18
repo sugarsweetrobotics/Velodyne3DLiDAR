@@ -7,6 +7,9 @@
  * $Id$
  */
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 #include "Velodyne3D.h"
 
 const double verticalCorrectionsHDL32[] = {
@@ -127,7 +130,9 @@ RTC::ReturnCode_t Velodyne3D::onInitialize()
   bindParameter("debug_level", m_debug_level, "0");
   bindParameter("correctionsFilePath", m_correctionsFilePath, "none");
   // </rtc-template>
-  
+
+  data_ = new std::string();
+  dataLength_ = new unsigned int();
   return RTC::RTC_OK;
 }
 
@@ -241,41 +246,60 @@ void PacketDecoder::PushFiringData(unsigned char laserId, unsigned short azimuth
 */
 RTC::ReturnCode_t Velodyne3D::onExecute(RTC::UniqueId ec_id)
 {
-  PacketDecoder::HDLFrame latest_frame;
-  
-  driver_.GetPacket(data_, dataLength_);
-  decoder_.DecodePacket(data_, dataLength_);
+    try {
+        PacketDecoder::HDLFrame latest_frame;
 
-  if (*dataLength_ != 1206) {
-    std::cout << "PacketDecoder: Warning, data packet is not 1206 bytes" << std::endl;
-    return RTC::RTC_OK;
-  }
+        driver_.GetPacket(data_, dataLength_);
+        decoder_.DecodePacket(data_, dataLength_);
 
-  unsigned char* data_char = const_cast<unsigned char*>(reinterpret_cast<const unsigned char*>(data_->c_str()));
-  HDLDataPacket* dataPacket = reinterpret_cast<HDLDataPacket *>(data_char);
-  for (int i = 0; i < HDL_FIRING_PER_PKT; ++i) {
-    HDLFiringData firingData = dataPacket->firingData[i];
+        if (*dataLength_ != 1206) {
+            std::cout << "PacketDecoder: Warning, data packet is not 1206 bytes" << std::endl;
+            return RTC::RTC_OK;
+        }
 
-    int offset = (firingData.blockIdentifier == BLOCK_0_TO_31) ? 0 : 32;
-    if (firingData.rotationalPosition < last_azimuth_) {
-      //std::cout << "packet_count_per_frame = " << packet_count_per_frame_ << "/" << last_azimuth_ << std::endl;
-      //packet_count_per_frame_ = 0;
-      setTimestamp(m_range3d);
-      m_range3dOut.write();
+        unsigned char* data_char = const_cast<unsigned char*>(reinterpret_cast<const unsigned char*>(data_->c_str()));
+        HDLDataPacket* dataPacket = reinterpret_cast<HDLDataPacket*>(data_char);
+        for (int i = 0; i < HDL_FIRING_PER_PKT; ++i) {
+            HDLFiringData firingData = dataPacket->firingData[i];
+
+
+            int offset = (firingData.blockIdentifier == BLOCK_0_TO_31) ? 0 : 32;
+
+
+
+            if (firingData.rotationalPosition < last_azimuth_) {
+                //std::cout << "packet_count_per_frame = " << packet_count_per_frame_ << "/" << last_azimuth_ << std::endl;
+                //packet_count_per_frame_ = 0;
+                setTimestamp(m_range3d);
+                m_range3dOut.write();
+            }
+
+            //packet_count_per_frame_++;
+            last_azimuth_ = firingData.rotationalPosition;
+            //std::cout << "last_azimuth_ = " << last_azimuth_ << std::endl;
+            //double azimuthInRadians = HDL_Grabber_toRadians((static_cast<double> (firingData.rotationalPosition) / 100.0));
+            auto frameIndex = firingData.rotationalPosition + 18000;
+            if (frameIndex >= HDL_NUM_ROT_ANGLES) {
+                frameIndex -= HDL_NUM_ROT_ANGLES;
+            }
+            for (int j = 0; j < LASER_PER_FIRING; j++) {
+                const int index = verticalIndexVLP16[j];
+                const double distanceM = firingData.laserReturns[j].distance * 0.002;
+                const unsigned char intensity = firingData.laserReturns[j].intensity;
+                if (firingData.rotationalPosition >= 0 && firingData.rotationalPosition < HDL_NUM_ROT_ANGLES) {
+                    m_range3d.frames[frameIndex].ranges[index] = distanceM;
+                    m_range3d.frames[frameIndex].intensities[index] = intensity;
+                }
+                else {
+                    std::cout << "[Velodyne3D] " << "rotationPosition: " << firingData.rotationalPosition << std::endl;
+                }
+            }
+        }
+
     }
-
-    //packet_count_per_frame_++;
-    last_azimuth_ = firingData.rotationalPosition;
-    //std::cout << "last_azimuth_ = " << last_azimuth_ << std::endl;
-    //double azimuthInRadians = HDL_Grabber_toRadians((static_cast<double> (firingData.rotationalPosition) / 100.0));
-    for (int j = 0; j < LASER_PER_FIRING; j++) {
-      const int index = verticalIndexVLP16[j];
-      const double distanceM = firingData.laserReturns[j].distance * 0.002;
-      const unsigned char intensity = firingData.laserReturns[j].intensity;
-      m_range3d.frames[firingData.rotationalPosition].ranges[index] = distanceM;
-      m_range3d.frames[firingData.rotationalPosition].intensities[index] = intensity;
+    catch (std::exception& ex) {
+        std::cout << "Exception: " << ex.what() << std::endl;
     }
-  }
 
   return RTC::RTC_OK;
 }

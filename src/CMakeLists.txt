@@ -36,7 +36,14 @@ include_directories(${OPENRTM_INCLUDE_DIRS})
 add_definitions(${OPENRTM_CFLAGS})
 
 
-set(WINPCAPS_ROOT "C:/Program Files/WpdPack")
+
+include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIR})
+include_directories(${Boost_INCLUDE_DIR}/..)
+
+#set(WINPCAPS_ROOT "C:/Program Files/WpdPack")
+
+set(WINPCAPS_ROOT ${PROJECT_SOURCE_DIR}/thirdparty/winpcap)
 include_directories(${WINPCAPS_ROOT}/include)
 link_directories(${WINPCAPS_ROOT}/lib/x64)
 
