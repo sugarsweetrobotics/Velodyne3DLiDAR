@@ -274,6 +274,7 @@ RTC::ReturnCode_t Velodyne3D::onExecute(RTC::UniqueId ec_id)
                 if (firingData.rotationalPosition < last_azimuth_) {
                     //std::cout << "packet_count_per_frame = " << packet_count_per_frame_ << "/" << last_azimuth_ << std::endl;
                     //packet_count_per_frame_ = 0;
+                    last_azimuth_ = 0;
                     setTimestamp(m_range3d);
                     m_range3dOut.write();
                     return RTC::RTC_OK;
@@ -287,6 +288,8 @@ RTC::ReturnCode_t Velodyne3D::onExecute(RTC::UniqueId ec_id)
                 if (frameIndex >= HDL_NUM_ROT_ANGLES) {
                     frameIndex -= HDL_NUM_ROT_ANGLES;
                 }
+                //auto frameIndex = firingData.rotationalPosition;
+                if (firingData.rotationalPosition >= HDL_NUM_ROT_ANGLES) break;
                 for (int j = 0; j < LASER_PER_FIRING; j++) {
                     const int index = verticalIndexVLP16[j];
                     const double distanceM = firingData.laserReturns[j].distance * 0.002;
