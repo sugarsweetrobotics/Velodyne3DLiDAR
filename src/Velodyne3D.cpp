@@ -247,55 +247,61 @@ void PacketDecoder::PushFiringData(unsigned char laserId, unsigned short azimuth
 RTC::ReturnCode_t Velodyne3D::onExecute(RTC::UniqueId ec_id)
 {
     try {
-        PacketDecoder::HDLFrame latest_frame;
+        while (1) {
+            PacketDecoder::HDLFrame latest_frame;
 
-        driver_.GetPacket(data_, dataLength_);
-        decoder_.DecodePacket(data_, dataLength_);
+            driver_.GetPacket(data_, dataLength_);
 
-        if (*dataLength_ != 1206) {
-            std::cout << "PacketDecoder: Warning, data packet is not 1206 bytes" << std::endl;
-            return RTC::RTC_OK;
-        }
-
-        unsigned char* data_char = const_cast<unsigned char*>(reinterpret_cast<const unsigned char*>(data_->c_str()));
-        HDLDataPacket* dataPacket = reinterpret_cast<HDLDataPacket*>(data_char);
-        for (int i = 0; i < HDL_FIRING_PER_PKT; ++i) {
-            HDLFiringData firingData = dataPacket->firingData[i];
-
-
-            int offset = (firingData.blockIdentifier == BLOCK_0_TO_31) ? 0 : 32;
-
-
-
-            if (firingData.rotationalPosition < last_azimuth_) {
-                //std::cout << "packet_count_per_frame = " << packet_count_per_frame_ << "/" << last_azimuth_ << std::endl;
-                //packet_count_per_frame_ = 0;
-                setTimestamp(m_range3d);
-                m_range3dOut.write();
+            if (*dataLength_ != 1206) {
+                std::cout << "PacketDecoder: Warning, data packet is not 1206 bytes" << std::endl;
+                return RTC::RTC_OK;
             }
 
-            //packet_count_per_frame_++;
-            last_azimuth_ = firingData.rotationalPosition;
-            //std::cout << "last_azimuth_ = " << last_azimuth_ << std::endl;
-            //double azimuthInRadians = HDL_Grabber_toRadians((static_cast<double> (firingData.rotationalPosition) / 100.0));
-            auto frameIndex = firingData.rotationalPosition + 18000;
-            if (frameIndex >= HDL_NUM_ROT_ANGLES) {
-                frameIndex -= HDL_NUM_ROT_ANGLES;
-            }
-            for (int j = 0; j < LASER_PER_FIRING; j++) {
-                const int index = verticalIndexVLP16[j];
-                const double distanceM = firingData.laserReturns[j].distance * 0.002;
-                const unsigned char intensity = firingData.laserReturns[j].intensity;
-                if (firingData.rotationalPosition >= 0 && firingData.rotationalPosition < HDL_NUM_ROT_ANGLES) {
-                    m_range3d.frames[frameIndex].ranges[index] = distanceM;
-                    m_range3d.frames[frameIndex].intensities[index] = intensity;
+            decoder_.DecodePacket(data_, dataLength_);
+
+
+
+            unsigned char* data_char = const_cast<unsigned char*>(reinterpret_cast<const unsigned char*>(data_->c_str()));
+            HDLDataPacket* dataPacket = reinterpret_cast<HDLDataPacket*>(data_char);
+            for (int i = 0; i < HDL_FIRING_PER_PKT; ++i) {
+                HDLFiringData firingData = dataPacket->firingData[i];
+
+
+                int offset = (firingData.blockIdentifier == BLOCK_0_TO_31) ? 0 : 32;
+
+
+
+                if (firingData.rotationalPosition < last_azimuth_) {
+                    //std::cout << "packet_count_per_frame = " << packet_count_per_frame_ << "/" << last_azimuth_ << std::endl;
+                    //packet_count_per_frame_ = 0;
+                    setTimestamp(m_range3d);
+                    m_range3dOut.write();
+                    return RTC::RTC_OK;
                 }
-                else {
-                    std::cout << "[Velodyne3D] " << "rotationPosition: " << firingData.rotationalPosition << std::endl;
+
+                //packet_count_per_frame_++;
+                last_azimuth_ = firingData.rotationalPosition;
+                //std::cout << "last_azimuth_ = " << last_azimuth_ << std::endl;
+                //double azimuthInRadians = HDL_Grabber_toRadians((static_cast<double> (firingData.rotationalPosition) / 100.0));
+                auto frameIndex = firingData.rotationalPosition + 18000;
+                if (frameIndex >= HDL_NUM_ROT_ANGLES) {
+                    frameIndex -= HDL_NUM_ROT_ANGLES;
+                }
+                for (int j = 0; j < LASER_PER_FIRING; j++) {
+                    const int index = verticalIndexVLP16[j];
+                    const double distanceM = firingData.laserReturns[j].distance * 0.002;
+                    const unsigned char intensity = firingData.laserReturns[j].intensity;
+                    if (firingData.rotationalPosition >= 0 && firingData.rotationalPosition < HDL_NUM_ROT_ANGLES) {
+                        m_range3d.frames[frameIndex].ranges[index] = distanceM;
+                        m_range3d.frames[frameIndex].intensities[index] = intensity;
+                    }
+                    else {
+                        std::cout << "[Velodyne3D] " << "rotationPosition: " << firingData.rotationalPosition << std::endl;
+                        break;
+                    }
                 }
             }
         }
-
     }
     catch (std::exception& ex) {
         std::cout << "Exception: " << ex.what() << std::endl;
