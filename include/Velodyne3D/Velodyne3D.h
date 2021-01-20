@@ -11,6 +11,7 @@
 #define VELODYNE3D_H
 
 
+#include <thread>
 #include "PacketDriver.h"
 #include "PacketDecoder.h"
 #include <boost/shared_ptr.hpp>
@@ -36,6 +37,7 @@
 #include <rtm/CorbaPort.h>
 #include <rtm/DataInPort.h>
 #include <rtm/DataOutPort.h>
+
 
 
 
@@ -283,6 +285,21 @@ class Velodyne3D
   unsigned int* dataLength_;
   unsigned int packet_count_per_frame_;
   unsigned int last_azimuth_;
+
+  bool endflag_;
+  std::thread* thread_;
+  friend
+	  void velodyne_routine(Velodyne3D* pRTC);
+
+  LiDAR3D::RangeData3D buffer_[2];
+  bool readyFlag_[2];
+
+
+  friend
+	  void GetPacketCallback(Velodyne3D* pRTC, const boost::system::error_code& error, std::size_t num_bytes, std::string* data, unsigned int* data_length);
+  char _rx_buffer[1500];
+  boost::asio::io_service _io_service;
+  boost::shared_ptr<boost::asio::ip::udp::socket> _socket;
 };
 
 
